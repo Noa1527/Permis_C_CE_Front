@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    // apiUrl: 'https://api-poids.batipilot-pro.fr',
+    apiUrl: 'https://permis-c-ce-back.onrender.com',
 };
