@@ -1,7 +1,324 @@
-<div class="min-h-screen w-full min-w-0 wrap-break-word bg-stone-50 text-slate-900">
+<!-- <div class="min-h-screen w-full min-w-0 wrap-break-word bg-stone-50 text-slate-900">
    <main class="mx-auto w-full min-w-0 max-w-6xl space-y-5 px-3 py-6 min-[375px]:px-4 sm:space-y-6 sm:px-8 sm:py-10">
-        Dashboard
+    
 
        
     </main>
+</div> -->
+<div class="min-w-0 bg-[#F8FAFC] text-[#0F172A]">
+  <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+
+    <!-- Accueil et choix du permis -->
+    <header
+      class="flex flex-col gap-5 sm:flex-row
+             sm:items-center sm:justify-between"
+    >
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-700">
+          Mon espace de préparation
+        </p>
+
+        <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+          Bonjour !
+        </h1>
+
+        <p class="mt-2 text-sm leading-7 text-slate-600">
+          Un peu de révision aujourd’hui, plus de confiance demain.
+        </p>
+      </div>
+
+      <fieldset class="min-w-0 shrink-0">
+        <legend class="mb-2 text-xs font-semibold text-slate-500">
+          Je prépare le permis
+        </legend>
+
+        <div
+          class="inline-flex gap-1 rounded-2xl border
+                 border-slate-200 bg-white p-1"
+        >
+          @for (permit of permits; track permit) {
+            <button
+              type="button"
+              (click)="selectPermit(permit)"
+              [attr.aria-pressed]="selectedPermit() === permit"
+              [class.bg-slate-900]="selectedPermit() === permit"
+              [class.text-white]="selectedPermit() === permit"
+              [class.text-slate-600]="selectedPermit() !== permit"
+              class="min-h-11 min-w-24 rounded-xl px-5 py-2
+                     text-sm font-bold transition-colors
+                     focus-visible:outline-2 focus-visible:outline-offset-2
+                     focus-visible:outline-orange-600"
+            >
+              Permis {{ permit }}
+            </button>
+          }
+        </div>
+      </fieldset>
+    </header>
+
+    <!-- Action principale -->
+    <section
+      aria-labelledby="start-title"
+      class="relative mt-7 overflow-hidden rounded-3xl
+             bg-[#0F172A] p-6 text-white sm:p-8 lg:p-10"
+    >
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -right-20 -top-24
+               h-72 w-72 rounded-full border border-white/10"
+      ></div>
+
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -bottom-28 right-0
+               h-64 w-64 rounded-full bg-orange-500/10 blur-3xl"
+      ></div>
+
+      <div
+        class="relative flex flex-col gap-6
+               lg:flex-row lg:items-center lg:justify-between"
+      >
+        <div class="max-w-xl">
+          <span
+            class="inline-flex items-center gap-2 rounded-full
+                   border border-orange-300/20 bg-orange-400/10
+                   px-3 py-1.5 text-xs font-semibold text-orange-300"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span>
+            Objectif permis {{ selectedPermit() }}
+          </span>
+
+          <h2
+            id="start-title"
+            class="mt-4 text-2xl font-bold leading-tight
+                   tracking-tight sm:text-3xl"
+          >
+            @if (hasProgress()) {
+              Garde le rythme.
+            } @else {
+              Ton prochain départ commence ici.
+            }
+          </h2>
+
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            @if (hasProgress()) {
+              Poursuis ta préparation et prends le temps de revoir
+              les points qui te semblent encore difficiles.
+            } @else {
+              Commence par quelques questions pour découvrir les sujets.
+              Tu pourras ensuite explorer les fiches et les vérifications.
+            }
+          </p>
+        </div>
+
+        <a
+          routerLink="/revisions/questions"
+          [queryParams]="{ permit: selectedPermit() }"
+          class="inline-flex min-h-14 shrink-0 items-center justify-center
+                 gap-3 rounded-xl bg-[#F97316] px-5 py-4
+                 text-sm font-bold text-slate-900 transition
+                 hover:bg-orange-400
+                 focus-visible:outline-2 focus-visible:outline-offset-4
+                 focus-visible:outline-orange-300"
+        >
+          {{ hasProgress() ? 'Réviser les questions' : 'Commencer mes révisions' }}
+
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-5 w-5 shrink-0"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Progression -->
+    <section aria-labelledby="progress-title" class="mt-9">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="progress-title" class="text-lg font-bold tracking-tight">
+          Ma progression
+        </h2>
+
+        <span
+          class="rounded-lg border border-slate-200 bg-white
+                 px-2.5 py-1 text-xs font-semibold text-slate-600"
+        >
+          Permis {{ selectedPermit() }}
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        @for (card of progressCards(); track card.label) {
+          <article
+            class="min-w-0 rounded-2xl border border-slate-200
+                   bg-white p-5 shadow-sm"
+          >
+            <h3 class="text-sm font-semibold text-slate-600">
+              {{ card.label }}
+            </h3>
+
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-3xl font-bold tabular-nums">
+                {{ card.value }}
+              </span>
+
+              <span class="text-sm text-slate-400">
+                / {{ card.total }}
+              </span>
+            </div>
+
+            <div
+              role="progressbar"
+              [attr.aria-label]="card.label"
+              [attr.aria-valuenow]="percentage(card.value, card.total)"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-valuetext]="card.value + ' sur ' + card.total"
+              class="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"
+            >
+              <div
+                [style.width.%]="percentage(card.value, card.total)"
+                class="h-full rounded-full bg-[#F97316]
+                       transition-[width] duration-300
+                       motion-reduce:transition-none"
+              ></div>
+            </div>
+
+            <p class="mt-3 text-xs leading-5 text-slate-500">
+              {{ card.detail }}
+            </p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- Activités -->
+    <section aria-labelledby="activities-title" class="mt-9">
+      <h2 id="activities-title" class="text-lg font-bold tracking-tight">
+        Que veux-tu travailler ?
+      </h2>
+
+      <p class="mt-1 text-sm leading-6 text-slate-500">
+        Choisis une activité pour avancer à ton rythme.
+      </p>
+
+      <div
+        class="mt-4 grid grid-cols-1 gap-4
+               min-[360px]:grid-cols-2 xl:grid-cols-4"
+      >
+        @for (activity of activities; track activity.path) {
+          <a
+            [routerLink]="activity.path"
+            [queryParams]="{ permit: selectedPermit() }"
+            class="group flex min-w-0 flex-col rounded-2xl
+                   border border-slate-200 bg-white p-4
+                   shadow-sm transition-colors
+                   hover:border-orange-300 hover:bg-orange-50/40
+                   focus-visible:outline-2 focus-visible:outline-offset-4
+                   focus-visible:outline-orange-600 sm:p-5"
+          >
+            <span
+              class="flex h-11 w-11 items-center justify-center
+                     rounded-xl bg-slate-100 text-slate-700
+                     transition-colors group-hover:bg-orange-100
+                     group-hover:text-orange-800"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-6 w-6"
+              >
+                <path [attr.d]="activity.icon" />
+              </svg>
+            </span>
+
+            <p
+              class="mt-5 text-[10px] font-bold uppercase
+                     tracking-wider text-orange-700 sm:text-xs"
+            >
+              {{ activity.badge }}
+            </p>
+
+            <h3 class="mt-2 text-base font-bold tracking-tight sm:text-lg">
+              {{ activity.title }}
+            </h3>
+
+            <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">
+              {{ activity.description }}
+            </p>
+
+            <div
+              class="mt-5 flex items-center justify-between
+                     gap-2 border-t border-slate-100 pt-4"
+            >
+              <span class="text-xs font-semibold leading-5 text-slate-900">
+                {{ activity.action }}
+              </span>
+
+              <span aria-hidden="true" class="text-lg text-orange-700">
+                →
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+
+    <!-- Résultats et conseil -->
+    <div class="mt-9 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <section
+        aria-labelledby="results-title"
+        class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
+      >
+        <h2 id="results-title" class="text-lg font-bold tracking-tight">
+          Mes résultats
+        </h2>
+
+        <div
+          class="mt-4 rounded-xl border border-dashed
+                 border-slate-200 bg-slate-50 p-5"
+        >
+          <p class="text-sm font-semibold text-slate-700">
+            Retrouve le bilan de tes entraînements
+          </p>
+
+          <p class="mt-2 text-sm leading-7 text-slate-500">
+            Tes scores et les questions à revoir seront affichés ici
+            une fois le suivi des sessions connecté.
+          </p>
+        </div>
+      </section>
+
+      <aside
+        aria-labelledby="tip-title"
+        class="rounded-2xl border border-orange-100 bg-orange-50 p-5 sm:p-6"
+      >
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-800">
+          Une idée pour tes révisions
+        </p>
+
+        <h2 id="tip-title" class="mt-3 text-lg font-bold tracking-tight">
+          Explique avec tes propres mots.
+        </h2>
+
+        <p class="mt-3 text-sm leading-7 text-slate-700">
+          Après avoir lu une fiche, cache le texte et essaie de résumer
+          les points essentiels à voix haute. Reviens ensuite sur
+          ce que tu as oublié.
+        </p>
+      </aside>
+    </div>
+  </div>
 </div>
