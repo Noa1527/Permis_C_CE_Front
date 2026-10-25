@@ -1,0 +1,443 @@
+
+<div class="min-h-dvh bg-slate-50 px-4 py-8 text-slate-900 sm:py-12">
+  <main class="mx-auto max-w-3xl pb-24">
+
+    <!-- Retour -->
+    <a
+      routerLink="/questions-ecrites"
+      class="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-orange-600"
+    >
+      <span aria-hidden="true">←</span>
+      Retour aux questions
+    </a>
+
+    <!-- En-tête -->
+    <header class="mt-7">
+      <p class="text-xs font-extrabold uppercase tracking-widest text-orange-600">
+        Interrogation écrite · Permis {{ permis() }}
+      </p>
+
+      <h1 class="mt-2 text-3xl font-extrabold tracking-tight">
+        Mon entraînement
+      </h1>
+
+      <p class="mt-2 text-sm text-slate-500">
+        @if (isRandom()) {
+          10 questions aléatoires
+        } @else {
+          Fiche n° {{ fiche() }} · 10 questions
+        }
+      </p>
+    </header>
+
+    <!-- Chargement -->
+    @if (loading()) {
+      <div
+        role="status"
+        class="mt-8 rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm"
+      >
+        <div
+          class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-orange-500"
+        ></div>
+
+        <p class="mt-5 text-sm font-semibold">
+          Chargement des questions...
+        </p>
+      </div>
+    }
+
+    <!-- Erreur -->
+    @else if (error()) {
+      <section
+        role="alert"
+        class="mt-8 rounded-2xl border border-red-200 bg-white p-6 shadow-sm"
+      >
+        <h2 class="text-lg font-extrabold text-red-700">
+          Impossible de démarrer
+        </h2>
+
+        <p class="mt-2 text-sm text-slate-600">
+          {{ error() }}
+        </p>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+          <button
+            type="button"
+            (click)="start()"
+            class="min-h-11 rounded-xl bg-orange-500 px-5 text-sm font-bold text-slate-950 transition hover:bg-orange-400"
+          >
+            Réessayer
+          </button>
+
+          <a
+            routerLink="/questions-ecrites"
+            class="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-5 text-sm font-semibold text-slate-700"
+          >
+            Retour
+          </a>
+        </div>
+      </section>
+    }
+
+    <!-- Résultat final -->
+    @else if (finished()) {
+      <section class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="bg-slate-900 p-8 text-center text-white">
+          <span class="text-4xl" aria-hidden="true">🏆</span>
+
+          <h2 class="mt-4 text-2xl font-extrabold">
+            Entraînement terminé !
+          </h2>
+
+          <div class="mt-5">
+            <span class="text-6xl font-black">
+              {{ score() }}
+            </span>
+
+            <span class="text-2xl font-bold text-slate-400">
+              / {{ total() }}
+            </span>
+          </div>
+
+          <p class="mt-3 text-sm text-slate-300">
+            Réponses validées
+          </p>
+        </div>
+
+        <div class="p-6 sm:p-8">
+          <div class="grid grid-cols-2 gap-3">
+
+            <div class="rounded-xl bg-emerald-50 p-5 text-center">
+              <p class="text-3xl font-extrabold text-emerald-700">
+                {{ score() }}
+              </p>
+
+              <p class="mt-1 text-xs font-semibold text-emerald-700">
+                Réussies
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-red-50 p-5 text-center">
+              <p class="text-3xl font-extrabold text-red-700">
+                {{ total() - score() }}
+              </p>
+
+              <p class="mt-1 text-xs font-semibold text-red-700">
+                À revoir
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Questions incorrectes -->
+          @if (failedQuestions().length > 0) {
+            <div class="mt-8">
+              <h3 class="text-lg font-extrabold">
+                Les questions à retravailler
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                Retrouve tes erreurs et leurs corrections.
+              </p>
+
+              <div class="mt-4 space-y-3">
+                @for (item of failedQuestions(); track item.result.questionId) {
+                  <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+
+                    <p class="text-xs font-bold text-orange-600">
+                      Fiche {{ item.question?.fiche }}
+                      · Question {{ item.question?.numero }}
+                    </p>
+
+                    <h4 class="mt-2 text-sm font-bold leading-6">
+                      {{ item.question?.question }}
+                    </h4>
+
+                    <p class="mt-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Ta réponse
+                    </p>
+
+                    <p class="mt-1 whitespace-pre-line text-sm text-red-700">
+                      {{ item.result.saisie }}
+                    </p>
+
+                    <p class="mt-4 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Réponse attendue
+                    </p>
+
+                    <p class="mt-1 whitespace-pre-line text-sm font-bold text-emerald-700">
+                      {{ item.correction?.reponse }}
+                    </p>
+
+                    @if ( correction()?.explication ) {
+                      <div class="mt-4 border-t border-slate-200 pt-4">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">
+                          Explication
+                        </p>
+
+                        <p class="mt-2 whitespace-pre-line text-sm leading-7 text-slate-600">
+                          {{ correction()?.explication }}
+                        </p>
+                      </div>
+                    }
+
+                  </article>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="mt-8 rounded-xl bg-emerald-50 p-5 text-center">
+              <h3 class="font-extrabold text-emerald-800">
+                Toutes les questions sont réussies !
+              </h3>
+
+              <p class="mt-2 text-sm text-emerald-700">
+                Continue de t'entraîner pour consolider tes connaissances.
+              </p>
+            </div>
+          }
+
+          <!-- Navigation finale -->
+          <div class="mt-8 grid gap-3 sm:grid-cols-2">
+
+            <button
+              type="button"
+              (click)="restart()"
+              class="min-h-12 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold transition hover:bg-slate-50"
+            >
+              Recommencer la série
+            </button>
+
+            <a
+              routerLink="/questions-ecrites"
+              class="flex min-h-12 items-center justify-center rounded-xl bg-orange-500 px-5 text-center text-sm font-bold text-slate-950 transition hover:bg-orange-400"
+            >
+              Choisir une autre fiche →
+            </a>
+
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Question actuelle -->
+    @else if (question()._id) {
+      <section class="mt-8 space-y-5">
+
+        <!-- Barre de progression -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-extrabold">
+                Question {{ currentIndex() + 1 }} / {{ total() }}
+              </p>
+
+              <p class="mt-1 text-xs text-slate-500">
+                {{ results().length }} réponse(s) validée(s)
+              </p>
+            </div>
+
+            <span class="text-sm font-extrabold text-orange-600">
+              {{ progress() }} %
+            </span>
+          </div>
+
+          <div
+            role="progressbar"
+            aria-label="Progression de l'entraînement"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="progress()"
+            class="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-100"
+          >
+            <div
+              class="h-full rounded-full bg-orange-500 transition-all duration-300"
+              [style.width.%]="progress()"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Carte question -->
+        <article class="overflow-hidden rounded-2xl bg-slate-900 text-white shadow-sm">
+
+          <div class="p-6 sm:p-9">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+
+              <span class="rounded-full bg-orange-500/15 px-3 py-1.5 text-xs font-bold text-orange-400">
+                QUESTION {{ currentIndex() + 1 }}
+              </span>
+
+              <span class="text-xs text-slate-400">
+                Fiche {{ question().fiche }}
+                · N° {{ question().numero }}
+              </span>
+
+            </div>
+
+            <h2 class="mt-8 text-xl font-bold leading-relaxed sm:text-2xl">
+              {{ question().question }}
+            </h2>
+
+            <p class="mt-8 text-sm leading-6 text-slate-300">
+              Écris ta réponse avant de découvrir la correction.
+            </p>
+          </div>
+
+          <div class="border-t border-white/10 px-6 py-4 text-xs text-slate-400 sm:px-9">
+            Prends ton temps pour réfléchir.
+          </div>
+
+        </article>
+
+        <!-- Formulaire de réponse -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+
+          <label
+            for="question-answer"
+            class="block text-base font-extrabold"
+          >
+            Ta réponse
+          </label>
+
+          <p class="mt-2 text-sm leading-6 text-slate-500">
+            Réponds à la question avec tes propres mots.
+          </p>
+
+          <textarea
+            #answerField
+            id="question-answer"
+            rows="4"
+            [value]="answer()"
+            (input)="setAnswer(answerField.value)"
+            [disabled]="validated()"
+            placeholder="Écris ta réponse ici..."
+            class="mt-5 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-70"
+          ></textarea>
+
+          <!-- Bouton validation -->
+          @if (!validated()) {
+            <button
+              type="button"
+              (click)="validate()"
+              [disabled]="!answer().trim()"
+              class="mt-5 flex min-h-12 w-full items-center justify-center rounded-xl bg-orange-500 px-5 text-sm font-extrabold text-slate-950 transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Valider ma réponse →
+            </button>
+          }
+
+          <!-- Correction -->
+          @else {
+            <div class="mt-6 space-y-5">
+
+              <!-- Résultat de la validation -->
+              @if (currentResult()?.reussie) {
+                <div
+                  role="status"
+                  class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+                >
+                  <span class="text-xl font-bold text-emerald-700">✓</span>
+
+                  <div>
+                    <p class="font-extrabold text-emerald-800">
+                      Bonne réponse !
+                    </p>
+
+                    <p class="mt-1 text-xs text-emerald-700">
+                      Ta réponse est validée.
+                    </p>
+                  </div>
+                </div>
+              } @else {
+                <div
+                  role="status"
+                  class="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4"
+                >
+                  <span class="text-xl font-bold text-amber-700">!</span>
+
+                  <div>
+                    <p class="font-extrabold text-amber-800">
+                      Réponse différente
+                    </p>
+
+                    <p class="mt-1 text-xs text-amber-700">
+                      Compare ta réponse avec la correction.
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- Réponse et explication -->
+              <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Réponse attendue
+                </p>
+
+                <p class="mt-3 whitespace-pre-line text-lg font-extrabold text-emerald-700">
+                  {{ correction()?.reponse }}
+                </p>
+
+                @if (correction()?.explication) {
+                  <div class="mt-5 border-t border-slate-200 pt-5">
+                    <h3 class="text-sm font-extrabold">
+                      Comprendre la réponse
+                    </h3>
+
+                    <p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600">
+                      {{ correction()?.explication }}
+                    </p>
+                  </div>
+                }
+
+              </div>
+
+              <!-- Réévaluation manuelle -->
+              @if (!currentResult()?.reussie) {
+                <div class="rounded-xl border border-orange-200 bg-orange-50 p-4">
+                  <p class="text-sm font-bold text-slate-900">
+                    Ta réponse était correcte, mais formulée autrement ?
+                  </p>
+
+                  <button
+                    type="button"
+                    (click)="markAnswer(true)"
+                    class="mt-3 min-h-11 rounded-lg border border-orange-300 bg-white px-4 text-sm font-bold text-orange-700 transition hover:bg-orange-100"
+                  >
+                    ✓ Compter comme bonne réponse
+                  </button>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  (click)="markAnswer(false)"
+                  class="text-sm font-semibold text-slate-500 underline transition hover:text-red-600"
+                >
+                  Finalement, je me suis trompé
+                </button>
+              }
+
+              <!-- Question suivante -->
+              <button
+                type="button"
+                (click)="next()"
+                class="flex min-h-14 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-extrabold text-white transition hover:bg-slate-700"
+              >
+                @if (currentIndex() + 1 === total()) {
+                  Voir mon résultat →
+                } @else {
+                  Question suivante →
+                }
+              </button>
+
+            </div>
+          }
+
+        </section>
+      </section>
+    }
+
+  </main>
+</div>

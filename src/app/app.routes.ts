@@ -75,6 +75,11 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('src/app/modules/dashboard/dashboard.routes'),
             },
+            {
+                path: 'questions-ecrites',
+                loadChildren: () =>
+                    import('src/app/modules/questions-ecrites/questions-ecrites.routes'),
+            },
             // {
             //     path: 'scanner',
             //     loadChildren: () =>
