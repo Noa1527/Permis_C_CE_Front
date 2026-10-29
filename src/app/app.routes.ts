@@ -80,6 +80,11 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('src/app/modules/questions-ecrites/questions-ecrites.routes'),
             },
+            {
+                path: 'profil',
+                loadChildren: () =>
+                    import('src/app/modules/profile/profile.routes'),
+            },
             // {
             //     path: 'scanner',
             //     loadChildren: () =>
