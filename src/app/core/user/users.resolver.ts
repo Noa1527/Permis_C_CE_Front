@@ -7,7 +7,12 @@ import {
 import { UserService } from 'src/app/core/user/user.service';
 import { User, Users } from 'src/app/core/user/user.types';
 
-
+export const connectedUserResolver: ResolveFn<User> = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+) => (
+    inject(UserService).get()
+)
 
 
 export const usersResolver: ResolveFn<Users> = (

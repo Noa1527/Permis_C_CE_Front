@@ -11,7 +11,7 @@ export interface User {
     firstName: string;
     lastName: string;
     password?: string;
-    
+    createdAt?: Date;
 }
 
 export type Users = User[];
@@ -33,4 +33,11 @@ export class FindUserDto {
         //     this.pagination = new FindEsgPaginationDto();
         // }
     }
+}
+
+// UpdateUser
+
+export interface UpdateUser {
+    firstName: string;
+    lastName: string;
 }
