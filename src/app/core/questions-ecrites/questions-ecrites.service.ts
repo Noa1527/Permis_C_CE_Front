@@ -2,8 +2,9 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { SignalStateService } from '../services/signal-state-service';
 import { HttpClient } from '@angular/common/http';
-import { Question, Questions, PermisType } from './questions-ecrites.types';
+import { Question, Questions } from './questions-ecrites.types';
 import { Observable, tap } from 'rxjs';
+import { Permis } from 'src/app/core/permis/permis.types';
 
 
 interface QuestionState {
@@ -42,15 +43,15 @@ export class QuestionsEcritesService extends SignalStateService<QuestionState>{
         return this.select('questions');
     }
 
-    get permis(): Signal<PermisType> {
+    get permis(): Signal<Permis> {
         return this._permis.asReadonly();
     }
 
-    setPermis(permis: PermisType): void {
+    setPermis(permis: Permis): void {
         this._permis.set(permis);
     }
 
-    private _permis = signal<PermisType>('C');
+    private _permis = signal<Permis>('C');
 
   /**
    * Sélectionner une question au hasard.

@@ -1,8 +1,11 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { Permis } from 'src/app/core/permis/permis.types';
+import { ProgressionService } from 'src/app/core/progression/progression.service';
+import { ProgressionType } from 'src/app/core/progression/progression.types';
 import { QuestionsEcritesService } from 'src/app/core/questions-ecrites/questions-ecrites.service';
-import { EntrainementConfig, PermisType, QuestionCorrection, QuestionResult, Questions } from 'src/app/core/questions-ecrites/questions-ecrites.types';
+import { QuestionCorrection, QuestionResult, Questions } from 'src/app/core/questions-ecrites/questions-ecrites.types';
 
 @Component({
   selector: 'app-entrainement',
@@ -17,12 +20,13 @@ export class Entrainement implements OnInit {
   private readonly _destroyRef = inject(DestroyRef);
 
   private readonly _questionsService = inject(QuestionsEcritesService);
+  private _progressionService = inject(ProgressionService);
 
   // -----------------------------------------------------
   // Configuration
   // -----------------------------------------------------
 
-  readonly permis = signal<PermisType>('C');
+  readonly permis = signal<Permis>('C');
   readonly fiche = signal<number | null>(null);
   readonly isRandom = signal(false);
 
@@ -40,6 +44,9 @@ export class Entrainement implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+
+  private tentativeEnregistree = false;
+  readonly savingProgression = signal(false);
 
   // -----------------------------------------------------
   // Computed
@@ -121,8 +128,7 @@ export class Entrainement implements OnInit {
     console.log('question',this.question);
     
 
-    const permis: PermisType =
-      params.get('permis') === 'CE' ? 'CE' : 'C';
+    const permis: Permis = params.get('permis') === 'CE' ? 'CE' : 'C';
 
     const mode = params.get('mode');
     const fiche = Number(params.get('fiche'));
@@ -226,10 +232,10 @@ export class Entrainement implements OnInit {
   // -----------------------------------------------------
 
   setAnswer(value: string): void {
-  if (this.validated()) return;
+    if (this.validated()) return;
 
-  this.answer.set(value);
-}
+    this.answer.set(value);
+  }
 
   // -----------------------------------------------------
   // Normalisation de la réponse
@@ -300,14 +306,47 @@ export class Entrainement implements OnInit {
   // Question suivante
   // -----------------------------------------------------
 
-  next(): void {
-    if (!this.validated()) return;
+  // next(): void {
+  //   if (!this.validated()) return;
 
-    this.currentIndex.update(index => index + 1);
+  //   this.currentIndex.update(index => index + 1);
 
-    this.answer.set('');
-    this.validated.set(false);
+  //   this.answer.set('');
+  //   this.validated.set(false);
+  // }
+
+async next(): Promise<void> {
+
+  if (!this.validated() || this.savingProgression()) {
+    return;
   }
+
+  // Récupérer le résultat actuel de la question
+  const result = this.currentResult();
+
+  if (!result) {
+    return;
+  }
+
+  // Enregistrer la tentative dans MongoDB
+  const saved = await this.enregistrerProgression(
+    result.reussie,
+  );
+
+  // Si l'enregistrement échoue,
+  // on reste sur la question actuelle.
+  if (!saved || this._destroyRef.destroyed) {
+    return;
+  }
+
+  // Passer à la question suivante
+  this.currentIndex.update(index => index + 1);
+
+  this.answer.set('');
+  this.validated.set(false);
+  this.error.set(null);
+}
+
 
   // -----------------------------------------------------
   // Recommencer
@@ -332,4 +371,54 @@ export class Entrainement implements OnInit {
     this.results.set([]);
     this.error.set(null);
   }
+  // -----------------------------------------------------
+  // Enregistrement de la progression
+  // -----------------------------------------------------
+  
+  private async enregistrerProgression(
+  reussie: boolean,
+): Promise<boolean> {
+
+  const question = this.question();
+
+  if (!question?._id) {
+    this.error.set('Identifiant de question introuvable.');
+    return false;
+  }
+
+  this.savingProgression.set(true);
+
+  try {
+
+    await firstValueFrom(
+      this._progressionService.enregistrerTentative({
+        permis: question.permis,
+        typeOfProgression: ProgressionType.WRITING_QUESTION,
+        elementId: question._id,
+        reussie,
+        score: reussie ? 1 : 0,
+      }),
+    );
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      'Erreur enregistrement progression',
+      error,
+    );
+
+    this.error.set(
+      'Impossible de sauvegarder la progression.',
+    );
+
+    return false;
+
+  } finally {
+    this.savingProgression.set(false);
+  }
 }
+
+}
+

@@ -85,6 +85,11 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('src/app/modules/profile/profile.routes'),
             },
+            {
+                path: 'progression',
+                loadChildren: () =>
+                    import('src/app/modules/progression/progression.routes'),
+            },
             // {
             //     path: 'scanner',
             //     loadChildren: () =>
