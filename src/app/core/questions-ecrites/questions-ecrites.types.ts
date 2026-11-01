@@ -1,10 +1,10 @@
-export type PermisType = 'C' | 'CE';
+import { Permis } from "src/app/core/permis/permis.types";
 
 export interface Question {
     _id?: string;
     fiche: number;
     numero: number;
-    permis: PermisType;
+    permis: Permis;
     question: string;
     reponse: string;
     explication: string;
@@ -24,7 +24,7 @@ export interface QuestionResult {
 }
 
 export interface EntrainementConfig {
-  permis: PermisType;
+  permis: Permis;
   mode: 'fiche' | 'aleatoire';
   fiche?: number;
 }

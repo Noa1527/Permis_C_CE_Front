@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Permis } from 'src/app/core/permis/permis.types';
 import { QuestionsEcritesService } from 'src/app/core/questions-ecrites/questions-ecrites.service';
-import { PermisType } from 'src/app/core/questions-ecrites/questions-ecrites.types';
 
 @Component({
   selector: 'app-questions-ecrites',
@@ -25,7 +25,7 @@ export class QuestionsEcrites {
     return this._questionsService.permis;
   }
 
-  changePermis(permis: PermisType): void {
+  changePermis(permis: Permis): void {
     this._questionsService.setPermis(permis);
   }
 

@@ -35,6 +35,13 @@ export class LayoutComponent {
             'M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 2h6v4H9zM8 14l3 3 5-6',
     },
     {
+        label: 'Progression',
+        path: '/progression',
+        exact: false,
+        icon:
+            'M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 2h6v4H9zM8 14l3 3 5-6',
+    },
+    {
         label: 'Profil',
         path: '/profil',
         exact: false,
