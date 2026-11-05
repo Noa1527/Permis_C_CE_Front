@@ -40,7 +40,7 @@ export class DashboardService extends SignalStateService<DashboardState> {
                 'Retiens les idées importantes et entraîne-toi à les expliquer.',
             badge: '12 fiches',
             action: 'Découvrir les fiches',
-            path: '/revisions/fiches',
+            path: '/fiches-orales',
             icon:
                 'M12 5v16M12 5C9 3 5 3 2 4v16c3-1 7-1 10 1M12 5c3-2 7-2 10-1v16c-3-1-7-1-10 1',
         },
