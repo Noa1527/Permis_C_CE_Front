@@ -90,26 +90,12 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('src/app/modules/progression/progression.routes'),
             },
-            // {
-            //     path: 'scanner',
-            //     loadChildren: () =>
-            //         import('src/app/modules/scan-foods/scan-foods.routes'),
-            // },
-            // {
-            //     path: 'foods',
-            //     loadChildren: () =>
-            //         import('src/app/modules/foods/foods.routes'),
-            // },
-            // {
-            //     path: 'foods/favorites',
-            //     loadChildren: () =>
-            //         import('src/app/modules/food-favorites/food-favorites.routes'),
-            // },
-            // {
-            //     path: 'configuration/weight-settings',
-            //     loadChildren: () =>
-            //         import('src/app/modules/configuration/weight-settings/weight-settings.routes'),
-            // },
+            {
+                path: 'fiches-orales',
+                loadChildren: () =>
+                    import('src/app/modules/fiches-orales/fiches-orales.routes'),
+            },
+            
         ],
     },
     { path: '**', redirectTo: '' },

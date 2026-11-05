@@ -1,0 +1,497 @@
+
+<div class="min-h-screen bg-[#F8FAFC] px-4 py-8 text-[#0F172A] sm:px-8">
+
+    <div class="mx-auto max-w-6xl">
+
+        <!-- Retour -->
+        <a
+            routerLink="/fiches-orales"
+            [queryParams]="{ permit: permis() }"
+            class="mb-6 inline-flex items-center gap-2
+                   text-sm font-medium text-slate-500
+                   transition hover:text-orange-600"
+        >
+            <span aria-hidden="true">←</span>
+            Retour aux fiches orales
+        </a>
+
+        @if (loading()) {
+
+            <!-- Chargement -->
+            <div class="rounded-2xl border border-slate-200
+                        bg-white p-12 text-center shadow-sm">
+
+                <div class="mx-auto mb-4 h-10 w-10 animate-spin
+                            rounded-full border-4 border-orange-100
+                            border-t-orange-500">
+                </div>
+
+                <p class="text-slate-500">
+                    Chargement de la fiche orale...
+                </p>
+
+            </div>
+
+        } @else if (error()) {
+
+            <!-- Erreur -->
+            <div class="rounded-2xl border border-red-200
+                        bg-red-50 p-6">
+
+                <h2 class="font-bold text-red-700">
+                    Impossible d'afficher la fiche
+                </h2>
+
+                <p class="mt-2 text-sm text-red-600">
+                    {{ error() }}
+                </p>
+
+            </div>
+
+        } @else if (fiche(); as fiche) {
+
+            <!-- Présentation de la fiche -->
+            <section class="mb-8 overflow-hidden rounded-2xl
+                            border border-slate-200
+                            bg-white shadow-sm">
+
+                <div class="h-1.5 bg-orange-500"></div>
+
+                <div class="p-6 sm:p-8">
+
+                    <div class="mb-5 flex flex-wrap
+                                items-center justify-between gap-3">
+
+                        <span class="rounded-lg bg-orange-50
+                                     px-4 py-2 text-xs
+                                     font-bold text-orange-600">
+                            FICHE ORALE N°{{ fiche.numero }}
+                        </span>
+
+                        <span class="rounded-full bg-slate-100
+                                     px-4 py-2 text-xs
+                                     font-semibold text-slate-600">
+                            Permis {{ permis() }}
+                        </span>
+
+                    </div>
+
+                    <h1 class="max-w-4xl text-2xl font-bold
+                               leading-tight tracking-tight
+                               text-slate-900 sm:text-3xl">
+                        {{ fiche.titre }}
+                    </h1>
+
+                    <p class="mt-4 max-w-4xl text-sm
+                              leading-7 text-slate-600 sm:text-base">
+                        {{ fiche.introduction }}
+                    </p>
+
+                    <!-- Statistiques de la fiche -->
+                    <div class="mt-7 flex flex-wrap gap-3">
+
+                        <span class="rounded-lg border border-slate-200
+                                     bg-slate-50 px-4 py-2
+                                     text-sm font-medium text-slate-600">
+                            {{ fiche.sections.length }} sections
+                        </span>
+
+                        <span class="rounded-lg border border-slate-200
+                                     bg-slate-50 px-4 py-2
+                                     text-sm font-medium text-slate-600">
+                            {{ totalPoints() }} points à apprendre
+                        </span>
+
+                        <span class="rounded-lg border border-orange-200
+                                     bg-orange-50 px-4 py-2
+                                     text-sm font-medium text-orange-700">
+                            7 min d'entraînement / point
+                        </span>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Introduction aux cours -->
+            <div class="mb-7">
+
+                <h2 class="text-xl font-bold text-slate-900">
+                    Points d'apprentissage
+                </h2>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Clique sur un point pour consulter son cours,
+                    connaître les risques et apprendre les
+                    bonnes pratiques.
+                </p>
+
+            </div>
+
+            <!-- Sections de la fiche -->
+            @for (
+                section of fiche.sections;
+                track section.id;
+                let sectionIndex = $index
+            ) {
+
+                <section class="mb-9">
+
+                    <!-- Titre de la section -->
+                    <div class="mb-5 flex items-start gap-4">
+
+                        <div class="flex h-11 w-11 shrink-0
+                                    items-center justify-center
+                                    rounded-xl bg-[#0F172A]
+                                    text-sm font-bold text-white">
+
+                            {{ sectionIndex + 1 }}
+
+                        </div>
+
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">
+                                {{ section.titre }}
+                            </h2>
+
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{ section.points.length }}
+                                points à étudier
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Liste des points -->
+                    <div class="space-y-4">
+
+                        @for (
+                            point of section.points;
+                            track point.id
+                        ) {
+
+                            <article
+                                class="overflow-hidden rounded-2xl
+                                       border bg-white shadow-sm
+                                       transition-colors"
+                                [class.border-orange-300]="
+                                    openedPointId() === point.id
+                                "
+                                [class.border-slate-200]="
+                                    openedPointId() !== point.id
+                                "
+                            >
+
+                                <!-- En-tête cliquable -->
+                                <button
+                                    type="button"
+                                    (click)="togglePoint(point.id)"
+                                    [attr.aria-expanded]="
+                                        openedPointId() === point.id
+                                    "
+                                    class="flex w-full items-center
+                                           justify-between gap-4
+                                           p-5 text-left
+                                           transition-colors
+                                           hover:bg-orange-50/50
+                                           sm:p-6"
+                                >
+
+                                    <div class="flex items-center gap-4">
+
+                                        <div class="flex h-10 w-10
+                                                    shrink-0 items-center
+                                                    justify-center
+                                                    rounded-xl bg-orange-50
+                                                    text-sm font-bold
+                                                    text-orange-600">
+
+                                            {{ point.ordre }}
+
+                                        </div>
+
+                                        <div>
+                                            <h3 class="font-bold text-slate-900
+                                                       sm:text-lg">
+                                                {{ point.titre }}
+                                            </h3>
+
+                                            <p class="mt-1 text-xs
+                                                      text-slate-500">
+                                                Voir le cours et les conseils
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <span
+                                        class="flex h-9 w-9 shrink-0
+                                               items-center justify-center
+                                               rounded-full bg-slate-100
+                                               text-xl text-slate-600
+                                               transition-transform"
+                                        [class.rotate-180]="
+                                            openedPointId() === point.id
+                                        "
+                                        aria-hidden="true"
+                                    >
+                                        ⌄
+                                    </span>
+
+                                </button>
+
+                                <!-- Cours du point -->
+                                @if (openedPointId() === point.id) {
+
+                                    <div class="border-t border-slate-100
+                                                p-5 sm:p-6">
+
+                                        <!-- Résumé -->
+                                        <div class="mb-6 rounded-xl
+                                                    bg-slate-50 p-5">
+
+                                            <h4 class="mb-2 text-sm
+                                                       font-bold text-slate-900">
+                                                À comprendre
+                                            </h4>
+
+                                            <p class="text-sm leading-7
+                                                      text-slate-600">
+                                                {{ point.cours.resume }}
+                                            </p>
+
+                                        </div>
+
+                                        <!-- Risques -->
+                                        @if (point.cours.risques.length) {
+
+                                            <div class="mb-7">
+
+                                                <h4 class="mb-4 flex
+                                                           items-center gap-2
+                                                           font-bold
+                                                           text-slate-900">
+
+                                                    <span
+                                                        class="flex h-7 w-7
+                                                               items-center
+                                                               justify-center
+                                                               rounded-lg
+                                                               bg-red-50
+                                                               text-red-600">
+                                                        !
+                                                    </span>
+
+                                                    Risques à connaître
+
+                                                </h4>
+
+                                                <ul class="space-y-3">
+
+                                                    @for (
+                                                        risque of point.cours.risques;
+                                                        track $index
+                                                    ) {
+
+                                                        <li
+                                                            class="flex
+                                                                   items-start
+                                                                   gap-3"
+                                                        >
+
+                                                            <span
+                                                                class="mt-2
+                                                                       h-2 w-2
+                                                                       shrink-0
+                                                                       rounded-full
+                                                                       bg-red-400">
+                                                            </span>
+
+                                                            <span
+                                                                class="text-sm
+                                                                       leading-6
+                                                                       text-slate-600">
+                                                                {{ risque }}
+                                                            </span>
+
+                                                        </li>
+
+                                                    }
+
+                                                </ul>
+
+                                            </div>
+
+                                        }
+
+                                        <!-- Conseils -->
+                                        @if (point.cours.conseils.length) {
+
+                                            <div class="mb-7">
+
+                                                <h4 class="mb-4 flex
+                                                           items-center gap-2
+                                                           font-bold
+                                                           text-slate-900">
+
+                                                    <span
+                                                        class="flex h-7 w-7
+                                                               items-center
+                                                               justify-center
+                                                               rounded-lg
+                                                               bg-emerald-50
+                                                               text-emerald-600">
+                                                        ✓
+                                                    </span>
+
+                                                    Bonnes pratiques
+
+                                                </h4>
+
+                                                <ul class="space-y-3">
+
+                                                    @for (
+                                                        conseil of point.cours.conseils;
+                                                        track $index
+                                                    ) {
+
+                                                        <li
+                                                            class="flex
+                                                                   items-start
+                                                                   gap-3"
+                                                        >
+
+                                                            <span
+                                                                class="mt-1
+                                                                       flex
+                                                                       h-5 w-5
+                                                                       shrink-0
+                                                                       items-center
+                                                                       justify-center
+                                                                       rounded-full
+                                                                       bg-emerald-100
+                                                                       text-xs
+                                                                       font-bold
+                                                                       text-emerald-700">
+                                                                ✓
+                                                            </span>
+
+                                                            <span
+                                                                class="text-sm
+                                                                       leading-6
+                                                                       text-slate-600">
+                                                                {{ conseil }}
+                                                            </span>
+
+                                                        </li>
+
+                                                    }
+
+                                                </ul>
+
+                                            </div>
+
+                                        }
+
+                                        <!-- Entraînement à venir -->
+                                        <div class="rounded-xl
+                                                    border border-orange-200
+                                                    bg-orange-50 p-5">
+
+                                            <div class="flex flex-wrap
+                                                        items-center
+                                                        justify-between
+                                                        gap-4">
+
+                                                <div>
+                                                    <h4 class="font-bold
+                                                               text-orange-900">
+                                                        Prêt à t'entraîner ?
+                                                    </h4>
+
+                                                    <p class="mt-1 text-sm
+                                                              text-orange-700">
+                                                        Réponse libre pendant
+                                                        7 minutes, puis
+                                                        autocorrection.
+                                                    </p>
+                                                </div>
+
+                                                <!-- <span
+                                                    class="rounded-lg
+                                                           border
+                                                           border-orange-200
+                                                           bg-white px-4 py-2
+                                                           text-xs font-semibold
+                                                           text-orange-700">
+                                                    Bientôt disponible
+                                                </span> -->
+
+                                                <a
+                                                    [routerLink]="[
+                                                        '/fiches-orales',
+                                                        fiche.numero,
+                                                        'points',
+                                                        point.id,
+                                                        'entrainement'
+                                                    ]"
+                                                    [queryParams]="{ permit: permis() }"
+                                                    class="inline-flex items-center justify-center
+                                                        rounded-xl bg-orange-500
+                                                        px-6 py-3 text-sm font-semibold
+                                                        text-white transition hover:bg-orange-600"
+                                                >
+                                                    Commencer l'entraînement
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                }
+
+                            </article>
+
+                        }
+
+                    </div>
+
+                </section>
+
+            }
+
+            <!-- Fin de la fiche -->
+            <div class="rounded-2xl border border-slate-200
+                        bg-white p-6 text-center shadow-sm sm:p-8">
+
+                <h2 class="text-lg font-bold text-slate-900">
+                    Tu as parcouru les points de la fiche n°{{ fiche.numero }}
+                </h2>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Reviens sur les points que tu maîtrises le moins
+                    avant de passer à l'entraînement.
+                </p>
+
+                <a
+                    routerLink="/fiches-orales"
+                    [queryParams]="{ permit: permis() }"
+                    class="mt-5 inline-flex items-center
+                           justify-center rounded-xl
+                           bg-orange-500 px-6 py-3
+                           text-sm font-semibold text-white
+                           transition hover:bg-orange-600"
+                >
+                    Retour aux fiches
+                </a>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
